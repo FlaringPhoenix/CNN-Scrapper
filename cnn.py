@@ -36,6 +36,17 @@ class CNN:
             for description in news.findAll("div", {"class": "sc-bdVaJa post-content-rendered render-stellar-contentstyles__Content-sc-9v7nwy-0 erzhuK"}):
                 article = Article(id, headline, author, description.text.strip())
                 self.articles.append(article.raw())
+                if "has moved here" in description.text.strip():
+                    try:
+                        self.url = description.find_all('a')[0].get('href')
+                        with open('config.json', 'r+') as f:
+                            data = json.load(f)
+                            data['cnn_url'] = self.url
+                            f.seek(0)
+                            f.write(json.dumps(data))
+                            f.truncate()
+                    except BaseException as err:
+                        print(f"Unexpected {err=}, {type(err)=} while trying to write to config.json")   
         self.storeArticles()
         return self.articles
 
